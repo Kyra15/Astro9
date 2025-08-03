@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 
 import base64
 
@@ -35,15 +34,19 @@ st.markdown(
     .stMainBlockContainer {
         background-color: #0B1D51;
         padding: 40px;
-        border-radius: 20px;
+        height: fit-content;
+    }
+
+    .stBottom {
+        width: 
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-st.title("On the search for a new Earth")
-st.header("Astro 9 Group 2")
+st.title("On the Search for a New Earth  🪐")
+st.subheader("Astro 9 Group 2")
 st.html("<style>[data-testid='stHeaderActionElements'] {display: none;}</style>")
 
 tab1, tab2 = st.tabs(["Based on Values Only", "Based on Lightcurves"])
@@ -62,8 +65,8 @@ with tab2:
     st.write("\* indicates a required input")
     st.number_input("Stellar Luminosity* (L$_☉$)", key="lc_lum")
     st.selectbox("Star Type*", ["O", "B", "A", "F", "G", "K", "M"], key="lc_type")
-    st.file_uploader("Upload lightcurve as csv")
+    st.file_uploader("Upload Lightcurve as .csv*")
+
 
 st.subheader("Output")
-st.write("Is this planet habitable? (give probability)")
-
+st.write("statistics")
