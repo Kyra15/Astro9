@@ -1,5 +1,6 @@
 import streamlit as st
-
+import matplotlib.pyplot as plt
+import numpy as np
 import base64
 
 
@@ -37,16 +38,22 @@ st.markdown(
         height: fit-content;
     }
 
-    .stBottom {
-        width: 
+    .stAppHeader {
+        background-color: transparent;
+    }
+
+    .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
+        font-size: 1.2rem;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
+
+
 st.title("On the Search for a New Earth  🪐")
-st.subheader("Astro 9 Group 2")
+st.subheader("A tool for determining habitability of exoplanets")
 st.html("<style>[data-testid='stHeaderActionElements'] {display: none;}</style>")
 
 tab1, tab2 = st.tabs(["Based on Values Only", "Based on Lightcurves"])
@@ -66,6 +73,16 @@ with tab2:
     st.number_input("Stellar Luminosity* (L$_☉$)", key="lc_lum")
     st.selectbox("Star Type*", ["O", "B", "A", "F", "G", "K", "M"], key="lc_type")
     st.file_uploader("Upload Lightcurve as .csv*")
+
+    fig, ax = plt.subplots()
+    x = np.linspace(0, 10, 100)
+    y = np.sin(x)
+    ax.plot(x, y)
+    ax.set_title("Sine Wave")
+    ax.set_xlabel("X-axis")
+    ax.set_ylabel("Y-axis")
+
+    st.pyplot(fig)
 
 
 st.subheader("Output")
