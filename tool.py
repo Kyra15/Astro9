@@ -56,7 +56,7 @@ st.title("On the Search for a New Earth  🪐")
 st.subheader("A tool for determining habitability of exoplanets")
 st.html("<style>[data-testid='stHeaderActionElements'] {display: none;}</style>")
 
-tab1, tab2 = st.tabs(["Based on Values Only", "Based on Lightcurves"])
+tab1, tab2 = st.tabs(["Based on Values Only", "Based on Target Pixel File"])
 
 with tab1:
     st.subheader("Input values")
@@ -71,7 +71,8 @@ with tab2:
     st.subheader("Input values")
     st.write("\* indicates a required input")
     st.number_input("Stellar Luminosity* (L$_☉$)", key="lc_lum")
-    st.selectbox("Star Type*", ["O", "B", "A", "F", "G", "K", "M"], key="lc_type")
+    st.number_input("Luminosity Uncertainty (L$_☉$)", key="lc_lum_sig")
+    
     st.file_uploader("Upload Lightcurve as .csv*")
 
     fig, ax = plt.subplots()
