@@ -73,7 +73,7 @@ with tab2:
     st.number_input("Stellar Luminosity* (L$_☉$)", key="lc_lum")
     st.number_input("Luminosity Uncertainty (L$_☉$)", key="lc_lum_sig")
     
-    st.file_uploader("Upload Lightcurve as .csv*")
+    st.file_uploader("Upload Target Pixel File as .fits*")
 
     fig, ax = plt.subplots()
     x = np.linspace(0, 10, 100)

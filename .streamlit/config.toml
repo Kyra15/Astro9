@@ -5,6 +5,7 @@ base = "dark"
 primaryColor = "#856ec4"
 
 backgroundColor = "#0B1D51"
+
 secondaryBackgroundColor = "#1e326e"
 
 linkColor = "#8CCDEB"
