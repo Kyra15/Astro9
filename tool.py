@@ -94,9 +94,9 @@ with tab2:
         ms = st.number_input("Mass Uncertainty (M$_☉$)", key="lc_m_sig", format="%0.6f")
         star_mass = ufloat(m, ms)
 
-        # r = st.number_input("Star Radius (R$_☉$)", key="lc_r", format="%0.4f")
-        # rs = st.number_input("Radius Uncertainty (R$_☉$)", key="lc_r_sig", format="%0.4f")
-        # star_radius = ufloat(r, rs)
+        r = st.number_input("Star Radius (R$_☉$)", key="lc_r", format="%0.4f")
+        rs = st.number_input("Radius Uncertainty (R$_☉$)", key="lc_r_sig", format="%0.4f")
+        star_radius = ufloat(r, rs)
 
         # t = st.number_input("Star Effective Temperature* (K)", key="lc_t")
         # ts = st.number_input("Temperature Uncertainty (K)", key="lc_t_sig")
@@ -122,10 +122,13 @@ with tab2:
         
         message = st.success("Loading statistics...")
 
+        with open("temp_tpf.fits", "wb") as fi:
+            fi.write(file.getbuffer())
+
         # if star_mass and star_radius:
         #     star_grav = umath.log10(((G.value * star_mass * M_sun.value)/(star_radius * R_sun.value)**2) * 100)
 
-        data = lk.read(file.name)
+        data = lk.read("temp_tpf.fits")
 
         lightcurve, values = lcf.finding_planet(data)
         per, t0, dur = values 
@@ -141,11 +144,6 @@ with tab2:
 
         st.subheader("Output")
 
-        # find planet radius
-        # p_radius = f.find_planet_radius(dip_depth, dip_sigma, star_radius)
-        # st.write(f"radius of planet: {p_radius.n:.4f} +/- {p_radius.s:.4e}")
-        # this one is the only one thats bad :(
-
         # find orbital period
         # orb_pd = per
         # st.write(f"orbital period (days): {orb_pd:.4f}")
@@ -158,8 +156,22 @@ with tab2:
         st.write(f"Inner Radius of Habitable Zone (AU): {hz_i.n:.4f} +/- {hz_i.s:.4e}")
         st.write(f"Outer Radius of Habitable Zone (AU): {hz_o.n:.4f} +/- {hz_o.s:.4e}")
 
-        result = f.is_habitable(orb_rad, hz_i, hz_o)
-        if result:
+        is_hz = f.is_habitable(orb_rad, hz_i, hz_o)
+
+        # find planet radius
+        p_radius = lcf.find_planet_radius(dip_depth, dip_sigma, star_radius)
+        st.write(f"Radius of Planet: {p_radius.n:.4f} +/- {p_radius.s:.4e}")
+        # this one is the only one thats bad :(
+
+        if 0.5 < p_radius < 1.5:
+            is_rad = True
+            st.write(f"Radius IS within 0.5 and 1.5 Earth Radii")
+        else:
+            st.write(f"Radius IS NOT within 0.5 and 1.5 Earth Radii")
+            is_rad = False
+        
+        
+        if is_hz and is_rad:
             st.subheader("This planet IS habitable :D")
         else:
             st.subheader("This planet IS NOT habitable :P")
