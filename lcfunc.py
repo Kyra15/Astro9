@@ -3,7 +3,7 @@ from scipy.signal import medfilt
 from transitleastsquares import transitleastsquares
 import matplotlib.pyplot as plt
 import numpy as np
-from astropy.constants import G, M_sun, R_earth, au 
+from astropy.constants import G, M_sun, R_earth, au, R_sun
 from astropy import units as u
 
 
@@ -119,7 +119,8 @@ def find_planet_radius(dip, dip_sig, s_rad):
     # so r_p = r_star * sqrt(delta flux)
     # trappist 1 radii is 0.121 solar radii
     dip_depth = ufloat(dip, dip_sig)
-    radius_in_sol = s_rad * (dip_depth ** 0.5)
+    s_rad_m = s_rad * R_sun.value
+    radius_in_sol = s_rad_m * (dip_depth ** 0.5)
     return radius_in_sol / R_earth.value
 
 def find_orbital_radius(pd_d, s_mass):

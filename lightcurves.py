@@ -10,17 +10,18 @@ import lightkurve as lk
 from astropy.constants import G, M_sun, R_sun
 
 
-# search MAST database for WASP-18b lightcurves (limit amt returned to 1)
-target_pixel = lk.search_targetpixelfile("Trappist-1")[1].download()
-target_pixel.to_fits("my_tpf.fits", overwrite=True)
+# # search MAST database for WASP-18b lightcurves (limit amt returned to 1)
+# target_pixel = lk.search_targetpixelfile("Trappist-1")[1].download()
+# target_pixel.to_fits("my_tpf.fits", overwrite=True)
 
-s_type = "M"
-star_radius = ufloat(0.1192, 0.0013) # trappist 1 radii
-star_mass = ufloat(0.0898, 0.0023)
-star_temp = ufloat(2566, 26)
-star_grav = umath.log10(((G.value * star_mass * M_sun.value)/(star_radius * R_sun.value)**2) * 100)
+# s_type = "M"
+# star_radius = ufloat(0.1192, 0.0013) # trappist 1 radii
+# star_mass = ufloat(0.0898, 0.0023)
+# star_temp = ufloat(2566, 26)
 
-def main(path, s_type, s_mass=None, s_rad=None, s_grav=None):
+def main(path, s_type, s_mass=None, s_rad=None):
+
+    s_grav = umath.log10(((G.value * s_mass * M_sun.value)/(s_rad * R_sun.value)**2) * 100)
 
     data = lk.read(path)
 
@@ -37,7 +38,7 @@ def main(path, s_type, s_mass=None, s_rad=None, s_grav=None):
     
     # find planet radius
     p_radius = f.find_planet_radius(dip_depth, dip_sigma, star_radius)
-    print(f"radius of planet: {p_radius.n} +/- {p_radius.s}")
+    print(f"radius of planet: {round(p_radius.n, 4)} +/- {round(p_radius.s, 4)}")
     # this one is the only one thats bad :(
 
     # find orbital period
@@ -51,5 +52,5 @@ def main(path, s_type, s_mass=None, s_rad=None, s_grav=None):
 
 
 
-if __name__ == "__main__":
-    main("my_tpf.fits", s_type, star_mass, star_radius, star_grav)
+# if __name__ == "__main__":
+#     main("my_tpf.fits", s_type, star_mass, star_radius, star_grav)
