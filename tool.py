@@ -170,10 +170,12 @@ with tab2:
             st.write(f"Radius IS NOT within 0.5 and 1.5 Earth Radii")
             is_rad = False
         
-        
+
         if is_hz and is_rad:
             st.subheader("This planet IS habitable :D")
         else:
             st.subheader("This planet IS NOT habitable :P")
+        
+        # will look into adding more measures of habitability (comparing with other methods liek SEPHI, ESI, PHI, etc.)
 
         message.empty()
