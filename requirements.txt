@@ -6,3 +6,4 @@ astropy
 transitleastsquares
 uncertainties
 scipy
+lightkurve
