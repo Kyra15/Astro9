@@ -69,15 +69,51 @@ with tab1:
         st.subheader("Input values")
         st.write("\* indicates a required input")
 
-        st.selectbox("Star Type*", ["O", "B", "A", "F", "G", "K", "M"], key="vo_type")
-        st.number_input("Planetary Radius* (km): ", key="vo_rad")
-        st.number_input("Orbital Radius* (km): ", key="vo_orbrad")
-        st.number_input("Orbital Period (sec): ", key="vo_per")
-        st.number_input("Stellar Luminosity* (L$_☉$)", key="vo_lum")
+        s_type = st.selectbox("Star Type*", ["O", "B", "A", "F", "G", "K", "M"], key="vo_type")
+        
+        r = st.number_input("Planetary Radius (R$_E$)", key="vo_r", format="%0.4f")
+        rs = st.number_input("Planetary Radius Uncertainty (R$_E$)", key="vo_r_sig", format="%0.4f")
+        planet_radius = ufloat(r, rs)
+
+        obr = st.number_input("Orbital Radius (AU)", key="vo_or", format="%0.4f")
+        obrs = st.number_input("Orbital Radius Uncertainty (AU)", key="vo_or_sig", format="%0.4f")
+        orb_radius = ufloat(obr, obrs)
+
+        l = st.number_input("Stellar Luminosity* (L$_☉$)", key="vo_lum", format="%0.6f")
+        ls = st.number_input("Luminosity Uncertainty (L$_☉$)", key="vo_lum_sig", format="%0.6f")
+        star_lum = ufloat(l, ls)
 
         submitted_vo = st.form_submit_button("Submit")
 
-    st.subheader("Output")
+
+    if submitted_vo:
+        if l == 0 or obr == 0 or r == 0:
+            st.warning("Please fill out the required fields.")
+            st.stop()
+        
+        message = st.success("Loading statistics...")
+
+        st.write(f"Orbital Radius (AU): {orb_radius.n:.4f} +/- {orb_radius.s:.4e}")
+
+        hz_i, hz_o = f.find_hab_zone(star_lum)
+        st.write(f"Inner Radius of Habitable Zone (AU): {hz_i.n:.4f} +/- {hz_i.s:.4e}")
+        st.write(f"Outer Radius of Habitable Zone (AU): {hz_o.n:.4f} +/- {hz_o.s:.4e}")
+
+        is_hz = f.is_habitable(orb_radius, hz_i, hz_o)
+
+        st.write(f"Radius of Planet: {planet_radius.n:.4f} +/- {planet_radius.s:.4e}")
+
+        is_rad = f.radius_ok(planet_radius)
+        
+        is_type = f.type_ok(s_type)
+
+        if is_hz and is_rad and is_type:
+            st.subheader("This planet IS habitable :D")
+        else:
+            st.subheader("This planet IS NOT habitable :P")
+
+        message.empty()
+        
     
     
 
@@ -88,7 +124,7 @@ with tab2:
         st.subheader("Input values")
         st.write("\* indicates a required input")
 
-        # s_type = st.selectbox("Star Type*", ["O", "B", "A", "F", "G", "K", "M"], key="lc_type")
+        s_type = st.selectbox("Star Type*", ["O", "B", "A", "F", "G", "K", "M"], key="lc_type")
         
         m = st.number_input("Star Mass* (M$_☉$)", key="lc_m", format="%0.6f")
         ms = st.number_input("Mass Uncertainty (M$_☉$)", key="lc_m_sig", format="%0.6f")
@@ -163,15 +199,12 @@ with tab2:
         st.write(f"Radius of Planet: {p_radius.n:.4f} +/- {p_radius.s:.4e}")
         # this one is the only one thats bad :(
 
-        if 0.5 < p_radius < 1.5:
-            is_rad = True
-            st.write(f"Radius IS within 0.5 and 1.5 Earth Radii")
-        else:
-            st.write(f"Radius IS NOT within 0.5 and 1.5 Earth Radii")
-            is_rad = False
+        is_rad = f.radius_ok(p_radius)
+
+        is_type = f.type_ok(s_type)
         
 
-        if is_hz and is_rad:
+        if is_hz and is_rad and is_type:
             st.subheader("This planet IS habitable :D")
         else:
             st.subheader("This planet IS NOT habitable :P")
