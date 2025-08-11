@@ -11,7 +11,10 @@ def is_habitable(rad, inner, outer):
     return False
 
 def radius_ok(rad):
-    return 0.5 < rad < 2.0
+    return 0.5 <= rad <= 2.0
 
 def type_ok(type_s):
     return type_s in ["F", "G", "K", "M"]
+
+def temp_ok(temp):
+    return 4800 <= temp <= 6300

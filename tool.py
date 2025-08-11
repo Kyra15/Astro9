@@ -6,7 +6,9 @@ from uncertainties import ufloat, umath
 import lcfunc as lcf
 import func as f
 import lightkurve as lk
-from astropy.constants import G, M_sun, R_sun
+import requests
+import pandas as pd
+from io import StringIO
 
 
 @st.cache_resource()
@@ -61,7 +63,7 @@ st.title("On the Search for a New Earth  🪐")
 st.subheader("A tool for determining habitability of exoplanets")
 st.html("<style>[data-testid='stHeaderActionElements'] {display: none;}</style>")
 
-tab1, tab2 = st.tabs(["Based on Values Only", "Based on Target Pixel File"])
+tab1, tab2, tab3 = st.tabs(["Based on Values Only", "Based on Target Pixel File", "NASA Results"])
 
 with tab1:
 
@@ -70,7 +72,7 @@ with tab1:
         st.write("\* indicates a required input")
 
         s_type = st.selectbox("Star Type*", ["O", "B", "A", "F", "G", "K", "M"], key="vo_type")
-        
+
         r = st.number_input("Planetary Radius (R$_E$)", key="vo_r", format="%0.4f")
         rs = st.number_input("Planetary Radius Uncertainty (R$_E$)", key="vo_r_sig", format="%0.4f")
         planet_radius = ufloat(r, rs)
@@ -78,6 +80,10 @@ with tab1:
         obr = st.number_input("Orbital Radius (AU)", key="vo_or", format="%0.4f")
         obrs = st.number_input("Orbital Radius Uncertainty (AU)", key="vo_or_sig", format="%0.4f")
         orb_radius = ufloat(obr, obrs)
+
+        t = st.number_input("Star Effective Temperature* (K)", key="vo_t")
+        ts = st.number_input("Temperature Uncertainty (K)", key="vo_t_sig")
+        star_temp = ufloat(t, ts)
 
         l = st.number_input("Stellar Luminosity* (L$_☉$)", key="vo_lum", format="%0.6f")
         ls = st.number_input("Luminosity Uncertainty (L$_☉$)", key="vo_lum_sig", format="%0.6f")
@@ -87,11 +93,13 @@ with tab1:
 
 
     if submitted_vo:
-        if l == 0 or obr == 0 or r == 0:
+        if l == 0 or obr == 0 or r == 0 or t == 0:
             st.warning("Please fill out the required fields.")
             st.stop()
         
         message = st.success("Loading statistics...")
+
+        st.subheader("Output")
 
         st.write(f"Orbital Radius (AU): {orb_radius.n:.4f} +/- {orb_radius.s:.4e}")
 
@@ -107,7 +115,9 @@ with tab1:
         
         is_type = f.type_ok(s_type)
 
-        if is_hz and is_rad and is_type:
+        is_temp = f.temp_ok(star_temp)
+
+        if is_hz and is_rad and is_type and is_temp:
             st.subheader("This planet IS habitable :D")
         else:
             st.subheader("This planet IS NOT habitable :P")
@@ -134,9 +144,9 @@ with tab2:
         rs = st.number_input("Radius Uncertainty (R$_☉$)", key="lc_r_sig", format="%0.4f")
         star_radius = ufloat(r, rs)
 
-        # t = st.number_input("Star Effective Temperature* (K)", key="lc_t")
-        # ts = st.number_input("Temperature Uncertainty (K)", key="lc_t_sig")
-        # star_temp = ufloat(t, ts)
+        t = st.number_input("Star Effective Temperature* (K)", key="lc_t")
+        ts = st.number_input("Temperature Uncertainty (K)", key="lc_t_sig")
+        star_temp = ufloat(t, ts)
 
         l = st.number_input("Stellar Luminosity* (L$_☉$)", key="lc_lum", format="%0.6f")
         ls = st.number_input("Luminosity Uncertainty (L$_☉$)", key="lc_lum_sig", format="%0.6f")
@@ -152,7 +162,7 @@ with tab2:
 
 
     if submitted_lc:
-        if l == 0 or star_mass == 0 or not file:
+        if l == 0 or m == 0 or not file or t == 0:
             st.warning("Please fill out the required fields.")
             st.stop()
         
@@ -202,9 +212,11 @@ with tab2:
         is_rad = f.radius_ok(p_radius)
 
         is_type = f.type_ok(s_type)
+
+        is_temp = f.temp_ok(star_temp)
         
 
-        if is_hz and is_rad and is_type:
+        if is_hz and is_rad and is_type and is_temp:
             st.subheader("This planet IS habitable :D")
         else:
             st.subheader("This planet IS NOT habitable :P")
@@ -212,3 +224,54 @@ with tab2:
         # will look into adding more measures of habitability (comparing with other methods liek SEPHI, ESI, PHI, etc.)
 
         message.empty()
+    
+with tab3:
+    sql_statement = '''SELECT pl_name,hostname,pl_rade,pl_orbper,st_teff,st_spectype,st_lum FROM pscomppars WHERE pl_rade between 0.5 and 2.0 and st_teff between 4800 and 6300 and (upper(st_spectype) like 'F%' or upper(st_spectype) like 'G%' or upper(st_spectype) like 'K%' or upper(st_spectype) like 'M%')'''
+    
+    web_statement = "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=" + sql_statement.replace(" ", "+") + "&format=csv"
+
+    # st.write(web_statement)
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'
+    }
+
+    response = requests.get(web_statement, headers=headers)
+
+    df = pd.read_csv(StringIO(response.text))
+
+
+    df["Stellar Luminosity [Ls]"] = 10 ** df["st_lum"]
+
+    df = df.drop("st_lum", axis=1)
+    
+    df["pl_orbper"] = (df["pl_orbper"] / 365) ** (2/3)
+
+    df["Habitable Zone Inner Radius [AU]"] = np.sqrt(df["Stellar Luminosity [Ls]"] / 1.1)
+
+    df["Habitable Zone Outer Radius [AU]"] = np.sqrt(df["Stellar Luminosity [Ls]"] / 0.53)
+
+    df = df.rename(columns={'pl_name': 'Planet Name', 'hostname': 'Host Star Name', 'pl_rade': 'Planet Radius [Re]', 'pl_orbper': 'Orbital Radius [AU]', 'st_teff': 'Star Effective Temperature [K]', 'st_spectype': 'Spectral Types'})
+
+    df = df[['Planet Name', 'Host Star Name', 'Planet Radius [Re]', 'Orbital Radius [AU]', 'Habitable Zone Inner Radius [AU]', 'Habitable Zone Outer Radius [AU]', 'Star Effective Temperature [K]', 'Spectral Types']]
+
+    hab_df = df[(0.95 * df["Habitable Zone Inner Radius [AU]"] < df["Orbital Radius [AU]"]) & (df["Orbital Radius [AU]"] < 1.05 * df["Habitable Zone Outer Radius [AU]"])]
+
+    df_nh = df.drop(hab_df.index)
+
+    hab_df = hab_df.reset_index(drop=True)
+
+    near_hab_df = df_nh[(0.85 * df_nh["Habitable Zone Inner Radius [AU]"] < df_nh["Orbital Radius [AU]"]) & (df_nh["Orbital Radius [AU]"] < 1.15 * df_nh["Habitable Zone Outer Radius [AU]"])]
+
+    near_hab_df = near_hab_df.reset_index(drop=True)
+
+    st.subheader("Output")
+
+    st.write("Table of Habitable Planets (within 5\% error)")
+    st.dataframe(hab_df)
+
+    st.write("Table of Planets Near the Habitable Zone (within 15\% error)")
+    st.dataframe(near_hab_df)
+
+    st.write("Full Table of Potential Exoplanets without Habitable Zone Calculations")
+    st.dataframe(df)
