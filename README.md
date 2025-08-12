@@ -1,3 +1,3 @@
 # Astro9
 
-Final Project
+Final Project - On the Search for a New Earth

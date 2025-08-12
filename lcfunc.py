@@ -49,7 +49,7 @@ def find_dip_depth(time, flux):
     results = model.power(oversampling_factor=5, duration_grid_step=1.02)
 
     depth = 1 - results.depth
-    
+
     return depth, results.transit_depths_uncertainties, results.duration, (results.model_folded_phase, results.model_folded_model, results.folded_phase, results.folded_y)
 
 
@@ -58,11 +58,11 @@ def find_planet_radius(dip, dip_sig, s_rad):
     # https://www.youtube.com/watch?v=urIKWm3AB-4&t=220s
     # the relationship: delta flux = r_p ** 2 / r_s ** 2
     # so r_p = r_star * sqrt(delta flux)
-    # trappist 1 radii is 0.121 solar radii
     dip_depth = ufloat(dip, dip_sig)
     s_rad_m = s_rad * R_sun.value
     radius_in_sol = s_rad_m * (dip_depth ** 0.5)
     return radius_in_sol / R_earth.value
+
 
 # find orbital radius based on the period and stellar mass
 def find_orbital_radius(pd_d, s_mass):
@@ -70,3 +70,4 @@ def find_orbital_radius(pd_d, s_mass):
     pd = pd_d * 86400
     orb_rad = (((pd ** 2 * G.value * mass)/(4 * np.pi**2))**(1/3)) / au.value
     return orb_rad
+
