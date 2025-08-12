@@ -8,7 +8,7 @@ from astropy.constants import G, M_sun, R_earth, au, R_sun
 from astropy import units as u
 
 
-# use lightkurve to look for the max period amplitude and fold around it (would be a planet)
+# use lightkurve to look for dips and find the best candidate
 # returns period, time, and duration of dip (the transit)
 def finding_planet(data):
 
