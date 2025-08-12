@@ -49,6 +49,8 @@ def find_dip_depth(time, flux):
     results = model.power(oversampling_factor=5, duration_grid_step=1.02)
 
     depth = 1 - results.depth
+    print(depth, results.transit_depths_uncertainties, results.duration)
+    print(results.model_folded_phase, results.model_folded_model, results.folded_phase, results.folded_y)
     return depth, results.transit_depths_uncertainties, results.duration, (results.model_folded_phase, results.model_folded_model, results.folded_phase, results.folded_y)
 
 
