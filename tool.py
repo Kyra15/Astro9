@@ -108,21 +108,27 @@ with tab1:
         st.subheader("Output")
 
         # write out results
-        st.write(f"Orbital Radius (AU): {orb_radius.n:.4f} +/- {orb_radius.s:.4e}")
 
         hz_i, hz_o = f.find_hab_zone(star_lum)
-        st.write(f"Inner Radius of Habitable Zone (AU): {hz_i.n:.4f} +/- {hz_i.s:.4e}")
-        st.write(f"Outer Radius of Habitable Zone (AU): {hz_o.n:.4f} +/- {hz_o.s:.4e}")
-
-        is_hz = f.is_habitable(orb_radius, hz_i, hz_o)
-
-        st.write(f"Radius of Planet (Rₑ): {planet_radius.n:.4f} +/- {planet_radius.s:.4e}", unsafe_allow_html=True)
 
         is_rad = f.radius_ok(planet_radius)
+
+        st.write(f"Radius of Planet (Rₑ): {planet_radius.n:.4f} +/- {planet_radius.s:.4e}<br>Fits criteria? {is_rad}", unsafe_allow_html=True)
         
         is_type = f.type_ok(s_type)
 
+        st.write(f"Type of Star: {s_type}<br>Fits criteria? {is_type}", unsafe_allow_html=True)
+
         is_temp = f.temp_ok(star_temp)
+
+        st.write(f"Star Effective Temperature (K): {star_temp.n:.4f} +/- {star_temp.s:.4e}<br>Fits criteria? {is_temp}", unsafe_allow_html=True)
+
+        st.write("<br>", unsafe_allow_html=True)
+        is_hz = f.is_habitable(orb_radius, hz_i, hz_o)
+        st.write(f"Orbital Radius (AU): {orb_radius.n:.4f} +/- {orb_radius.s:.4e}")
+        st.write(f"Inner Radius of Habitable Zone (AU): {hz_i.n:.4f} +/- {hz_i.s:.4e}")
+        st.write(f"Outer Radius of Habitable Zone (AU): {hz_o.n:.4f} +/- {hz_o.s:.4e}")
+        st.write(f"Fits criteria? {is_hz}")
 
         # display final conclusion based on all previous checks
         if is_hz and is_rad and is_type and is_temp:
@@ -219,24 +225,33 @@ with tab2:
 
         # find orbital radius
         orb_rad = lcf.find_orbital_radius(per, star_mass)
-        st.write(f"Orbital Radius (AU): {orb_rad.n:.4f} +/- {orb_rad.s:.4e}")
 
         # find hab zone
         hz_i, hz_o = f.find_hab_zone(star_lum)
-        st.write(f"Inner Radius of Habitable Zone (AU): {hz_i.n:.4f} +/- {hz_i.s:.4e}")
-        st.write(f"Outer Radius of Habitable Zone (AU): {hz_o.n:.4f} +/- {hz_o.s:.4e}")
-
-        is_hz = f.is_habitable(orb_rad, hz_i, hz_o)
 
         # find planet radius
         p_radius = lcf.find_planet_radius(dip_depth, dip_sigma, star_radius)
-        st.write(f"Radius of Planet (Rₑ): {p_radius.n:.4f} +/- {p_radius.s:.4e}", unsafe_allow_html=True)
 
-        is_rad = f.radius_ok(p_radius)
+        # write out results
+        is_rad = f.radius_ok(planet_radius)
 
+        st.write(f"Radius of Planet (Rₑ): {p_radius.n:.4f} +/- {p_radius.s:.4e}<br>Fits criteria? {is_rad}", unsafe_allow_html=True)
+        
         is_type = f.type_ok(s_type)
 
+        st.write(f"Type of Star: {s_type}<br>Fits criteria? {is_type}", unsafe_allow_html=True)
+
         is_temp = f.temp_ok(star_temp)
+
+        st.write(f"Star Effective Temperature (K): {star_temp.n:.4f} +/- {star_temp.s:.4e}<br>Fits criteria? {is_temp}", unsafe_allow_html=True)
+
+        st.write("<br>", unsafe_allow_html=True)
+
+        st.write(f"Orbital Radius (AU): {orb_rad.n:.4f} +/- {orb_rad.s:.4e}")
+        st.write(f"Inner Radius of Habitable Zone (AU): {hz_i.n:.4f} +/- {hz_i.s:.4e}")
+        st.write(f"Outer Radius of Habitable Zone (AU): {hz_o.n:.4f} +/- {hz_o.s:.4e}")
+        is_hz = f.is_habitable(orb_rad, hz_i, hz_o)
+        st.write(f"Fits criteria? {is_hz}")
         
         # print result based on previous criteria
         if is_hz and is_rad and is_type and is_temp:
