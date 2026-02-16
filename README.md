@@ -7,3 +7,8 @@ Instructions to run:
 Download all files and folders
 
 Run the command "streamlit run app.py" in the terminal (or just access the site at the link https://astro9exoplanets.streamlit.app/)
+
+Process:
+1. Smoothed TPF
+2. Applied BATMAN fitting
+3. Used physics and other inputted values to check for habitability
